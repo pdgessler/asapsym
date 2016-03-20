@@ -37,7 +37,7 @@ asapsym.ind : asapsym.idx
 
 ctan : all
 	cp $(CTAN) asapsym/
-	tar -C asapsym -cf $(NAME) $(CTAN)
+	tar -cf $(NAME) asapsym/
 
 clean :
 	rm -f $(INT) $(PKG) $(DOC)

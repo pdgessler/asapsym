@@ -1,6 +1,6 @@
 # asapsym: convenience macros for the ASAP symbol font
 
-> asapsym v1.0 2016/03/19   
+> asapsym v1.0 2016/03/20   
 > Copyright (C) 2016 Paul D. Gessler (<pdgessler@gmail.com>)   
 
 The **asapsym** package provides convenience macros for using the symbols

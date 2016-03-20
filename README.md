@@ -81,29 +81,30 @@ These three files must be in a directory searched by TeX. A suggested layout for
 the complete distribution is:
 
     doc/
-        generic/
-            asapsym/
-                asapsym.pdf
-                README.md
+      generic/
+        asapsym/
+          asapsym.pdf
+          README.md
     fonts/
-        opentype/
-            omnibus-type/
-                Asap-Symbol.otf
+      opentype/
+        omnibus-type/
+          asap/
+            Asap-Symbol.otf
     source/
-        generic/
-            asapsym/
-                asapsym.dtx
-                asapsym.ins
+      generic/
+        asapsym/
+          asapsym.dtx
+          asapsym.ins
     tex/
-        generic/
-            asapsym/
-                asapsym-generic.tex
-        latex/
-            asapsym/
-                asapsym.sty
-        plain/
-            asapsym/
-                asapysm.code.tex
+      generic/
+        asapsym/
+          asapsym-generic.tex
+      latex/
+        asapsym/
+          asapsym.sty
+      plain/
+        asapsym/
+          asapysm.code.tex
 
 To produce the documentation locally, use the following sequence of commands:
 

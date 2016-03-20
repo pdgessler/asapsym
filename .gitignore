@@ -1,0 +1,15 @@
+*.aux
+*.log
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.pdf
+*.sty
+*.synctex*
+*.tcp
+*.tmp
+*.tps
+*.tex
+*.gz

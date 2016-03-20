@@ -77,7 +77,7 @@
 %
 % \providecommand*{\url}{\texttt}
 % \newcommand{\pkg}[1]{\textsf{#1}}
-% \newcommand{\tr}[1]{\ttfamily\textbackslash asap#1 & \large\vphantom{Ag}\csname asap#1\endcsname \\}
+% \newcommand{\tr}[1]{\ttfamily\textbackslash asap#1 & \vphantom{Ag}\csname asap#1\endcsname \\}
 % \newcommand{\ts}[1]{\tr{#1Sign}}
 % \newcommand{\tn}[1]{\ts{Not#1}}
 % \newcommand{\tp}[1]{\tr{#1}}
@@ -118,6 +118,17 @@
 % Once the package is loaded, all macros are available for use throughout your
 % document. Refer to sections \ref{sec:arrows} to \ref{sec:transportation} for
 % a complete listing of macros and their resulting symbols, grouped by category.
+%
+% \section{Future Work}
+%
+% In future releases, I plan to add:
+% \begin{itemize}
+% \item color support for the `not' sign overlays,
+% \item switches/options for displaying male/female variants of the people 
+%   symbols, 
+% \item alias commands for custom user naming, and
+% \item \hologo{ConTeXt} support.
+% \end{itemize}
 %
 % \section{Arrows} \label{sec:arrows}
 % \begin{tabular}{lc}
@@ -272,52 +283,102 @@
 %
 % \section{Implementation}
 %
+% The implementation of the macros is divided into three parts:
+% \begin{itemize}
+% \item a \LaTeX\ package wrapper file (|asapsym.sty|),
+% \item a Plain \TeX\ loader file (|asapsym.code.tex|), and
+% \item the generic macro definition file (|asapsym-generic.tex|).
+% \end{itemize}
+% The third file is read in by each of the first two files after their own
+% format-specific macros are defined.
+%
 % \subsection{\LaTeX\ Package Wrapper}
 % \iffalse
 %<*latexwrapper>
 % \fi
 %
+% We use \pkg{fontspec} for loading OTF fonts and create a new font family to be
+% used by the package:
 %    \begin{macrocode}
 \RequirePackage{fontspec}
 \newfontfamily{\asapsym}{Asap Symbol}
 %    \end{macrocode}
+% The \pkg{fontspec} package takes care of requiring OTF-capable engines,
+% producing a prominent error if one is not being used.
 %
 % \begin{macro}{\asapsym@raw}
+% The |\asapsym@raw|\marg{stylistic-set}\marg{character} macro is used
+% internally to typeset the actual symbol. The first argument is the stylistic
+% set from which the symbol is to be taken. For simplicity, the leading zero
+% must be present for stylistic sets 9 and below. The second argument is the
+% character where symbol exists in the chosen stylistic set.
 %    \begin{macrocode}
 \def\asapsym@raw#1#2{\bgroup\asapsym%
   \addfontfeatures{StylisticSet=#1}#2\egroup}
+%    \end{macrocode}
+% The font is selected, the stylistic set applied, and the character is typeset
+% within a group.
+% \end{macro}
+%
+% Having defined the only format-specific code, the generic code is |\input|:
+%    \begin{macrocode}
 \input{asapsym-generic}
 %    \end{macrocode}
-% \end{macro}
 %
 % \iffalse
 %</latexwrapper>
 % \fi
 %
-% \subsection{Plain \TeX\ Wrapper}
+% \subsection{Plain \TeX\ Loader}
 % \iffalse
 %<*plainwrapper>
 % \fi
 %
+% We adopt the \LaTeX\ convention of using |@| in protected macro names
+% throughout the code. Therefore, we must first save the current category code
+% of |@| for later restoration, and set its category code to `letter`
 %    \begin{macrocode}
 \edef\asapsymatcode{\the\catcode`\@}
 \catcode`\@=11
-
+%    \end{macrocode}
+%
+% Next, we do some engine detection to ensure that a compatible one is used:
+%    \begin{macrocode}
 \ifdefined\XeTeXinterchartoks % we are in XeTeX
-\else
-  \ifdefined\directlua % we are in LuaTex
+\else\ifdefined\directlua     % we are in LuaTex
+%    \end{macrocode}
+% For \hologo{LuaTeX}, we use |luaotfload.sty| so that the same font loading
+% syntax may be used in \hologo{XeTeX} and \hologo{LuaTeX}:
+%    \begin{macrocode}
     \input luaotfload.sty
+%    \end{macrocode}
+% If a compatible engine is not detected, we issue an error message and stop
+% loading the remainder of the file:
+%    \begin{macrocode}
   \else  % not supported
     \errmessage{asapsym error: Not an OTF-capable engine! Use xetex or luatex}
     \expandafter\endinput
   \fi
 \fi
-
+%    \end{macrocode}
+%
+% \begin{macro}{\asapsym@raw}
+% The |\asapsym@raw|\marg{stylistic-set}\marg{character} macro is used
+% internally to typeset the actual symbol, similar to the \LaTeX\ variant.
+% Here, we use the |\font| primitive to select the font and stylistic set:
+%    \begin{macrocode}
 \def\asapsym@raw#1#2{\bgroup\font\asapsym =
   "[Asap-Symbol.otf]:+ss#1"\asapsym #2\egroup}
-
+%    \end{macrocode}
+% \end{macro}
+%
+% Having defined all the format-specific code, the generic code is |\input|:
+%    \begin{macrocode}
 \input asapsym-generic
-
+%    \end{macrocode}
+%
+% Finally, we restore the category code of |@|:
+%    \begin{macrocode}
 \catcode`\@=\asapsymatcode
 %    \end{macrocode}
 %
@@ -325,27 +386,59 @@
 %</plainwrapper>
 % \fi
 %
-% \subsection{Generic Code}
+% \subsection{Generic Macro Code}
 % \iffalse
 %<*generic>
 % \fi
 %
+% Define a prefix to be used by all user-facing macros:
 %    \begin{macrocode}
 \def\asapsym@prefix{asap}
-
+%    \end{macrocode}
+%
+% \begin{macro}{\asapsym@set}
+% The |\asapsym@set|\marg{type}\marg{stylistic-set} macro defines a helper macro
+% for a given `type' of symbol.
+%    \begin{macrocode}
 \def\asapsym@set#1#2{\expandafter\def%
   \csname\asapsym@prefix #1\endcsname##1{\asapsym@raw{#2}{##1}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% Define a helper macro for each `type' of symbol. The font is implemented such
+% that each `type' of symbol exists within a specific stylistic set:
+%    \begin{macrocode}
 \asapsym@set{arrow}{06}
 \asapsym@set{elevator}{03}
 \asapsym@set{object}{04}
 \asapsym@set{people}{01}
 \asapsym@set{signal}{05}
 \asapsym@set{transport}{02}
-
+%    \end{macrocode}
+%
+% \begin{macro}{\asapsym@sym}
+% The |\asapsym@sym|\marg{base-name}\marg{type}\marg{char} defines a
+% user-facing symbol macro. The resulting macro's |\csname| is comprised of
+% the package prefix and \marg{base-name}. The symbol is taken from character
+% slot \marg{char} of the stylistic set corresponding to \marg{type}.
+%    \begin{macrocode}
 \def\asapsym@sym#1#2#3{\expandafter\def%
   \csname\asapsym@prefix#1\endcsname{\csname\asapsym@prefix#2\endcsname{#3}}}
-
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{asapsym@mka}
+% |\asapsym@mka|\marg{base-name}\marg{char} is used to create a user-facing
+% arrow symbol macro. The macro name is comprised of the package prefix, a
+% prefix |Arrow|, and \marg{base-name}. The symbol is taken from character slot
+% \marg{char} of the arrows font.
+%    \begin{macrocode}
 \def\asapsym@mka#1#2{\asapsym@sym{Arrow#1}{arrow}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All arrows are defined using the \emph{make arrow} helper macro:
+%    \begin{macrocode}
 \asapsym@mka{Left}{A}
 \asapsym@mka{UpLeft}{B}
 \asapsym@mka{Up}{C}
@@ -370,8 +463,20 @@
 \asapsym@mka{CircleFillDownRight}{V}
 \asapsym@mka{CircleFillDown}{W}
 \asapsym@mka{CircleFillDownLeft}{X}
-
+%    \end{macrocode}
+%
+% \begin{macro}{asapsym@mke}
+% |\asapsym@mke|\marg{base-name}\marg{char} is used to create a user-facing
+% elevator symbol macro. The macro name is comprised of the package prefix and
+% \marg{base-name}. The symbol is taken from character slot \marg{char} of the
+% elevators font.
+%    \begin{macrocode}
 \def\asapsym@mke#1#2{\asapsym@sym{#1}{elevator}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All elevators are defined using the \emph{make elevator} helper macro:
+%    \begin{macrocode}
 \asapsym@mke{Elevator}{A}
 \asapsym@mke{Stair}{B}
 \asapsym@mke{StairDown}{C}
@@ -379,8 +484,20 @@
 \asapsym@mke{Escalator}{E}
 \asapsym@mke{EscalatorDown}{F}
 \asapsym@mke{EscalatorUp}{G}
-
+%    \end{macrocode}
+%
+% \begin{macro}{asapsym@mko}
+% |\asapsym@mko|\marg{base-name}\marg{char} is used to create a user-facing
+% object symbol macro. The macro name is comprised of the package prefix and
+% \marg{base-name}. The symbol is taken from character slot \marg{char} of the
+% objects font.
+%    \begin{macrocode}
 \def\asapsym@mko#1#2{\asapsym@sym{#1}{object}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All objects are defined using the \emph{make object} helper macro:
+%    \begin{macrocode}
 \asapsym@mko{Book}{A}
 \asapsym@mko{Envelope}{B}
 \asapsym@mko{Gift}{C}
@@ -396,11 +513,34 @@
 \asapsym@mko{Mug}{M}
 \asapsym@mko{Hanger}{N}
 \asapsym@mko{Cigarette}{O}
-
+%    \end{macrocode}
+%
+% \begin{macro}{asapsym@mkp}
+% |\asapsym@mkp|\marg{base-name}\marg{char} is used to create a user-facing
+% people symbol macro. The macro name is comprised of the package prefix and
+% \marg{base-name}. The symbol is taken from character slot \marg{char} of the
+% people font.
+%    \begin{macrocode}
 \def\asapsym@mkp#1#2{\asapsym@sym{#1}{people}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{asapsym@mkd}
+% |\asapsym@mkd|\marg{base-name}\marg{char} is used to create gender-specific
+% user-facing people symbol macros. The macro names are comprised of the package
+% prefix, |Male| or |Female| as the case may be, and \marg{base-name}. The
+% symbols are taken from character slot \marg{char} of the people font.
+%    \begin{macrocode}
 \def\asapsym@mkd#1#2{
   \asapsym@mkp{Male#1}{\uppercase{#2}}
   \asapsym@mkp{Female#1}{\lowercase{#2}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All people are defined using the \emph{make people} helper macro. Some
+% symbols have the gender-specific variants, while others do not. |\asapsym@mkd|
+% and |\asapsym@mkp| are used as appropriate.
+%    \begin{macrocode}
 \asapsym@mkd{WithServiceAnimal}{A}
 \asapsym@mkd{WalkingDog}{B}
 \asapsym@mkd{Walking}{C}
@@ -423,10 +563,23 @@
 \asapsym@mkp{Cycling}{S}
 \asapsym@mkp{Dog}{T}
 \asapsym@mkp{Infant}{U}
-
+%    \end{macrocode}
+%
+% \begin{macro}{asapsym@mks}
+% |\asapsym@mks|\marg{base-name}\marg{char} is used to create user-facing sign
+% symbol macros, along with `negated' versions. The macro names are comprised
+% of the package prefix, |Not| for negated versions, \marg{base-name}, and
+% |Sign|. The symbols are taken from character slot \marg{char} of the people
+% font. For the negated versions, the not sign is overlaid.
+%    \begin{macrocode}
 \def\asapsym@mks#1#2{
   \asapsym@sym{#1Sign}{signal}{#2}
   \asapsym@sym{Not#1Sign}{signal}{#2\llap{X}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All signals are defined using the \emph{make signal} helper macro:
+%    \begin{macrocode}
 \asapsym@mks{Information}{A}
 \asapsym@mks{Hospital}{B}
 \asapsym@mks{Help}{C}
@@ -438,8 +591,20 @@
 \asapsym@mks{MobilePhone}{I}
 \asapsym@mks{Cigarette}{J}
 \asapsym@mks{Not}{X}
-
+%    \end{macrocode}
+%
+% \begin{macro}{asapsym@mkt}
+% |\asapsym@mkt|\marg{base-name}\marg{char} is used to create a user-facing
+% transporation symbol macro. The macro name is comprised of the package prefix and
+% \marg{base-name}. The symbol is taken from character slot \marg{char} of the
+% transportation font.
+%    \begin{macrocode}
 \def\asapsym@mkt#1#2{\asapsym@sym{#1}{transport}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% All transports are defined using the \emph{make transportation} helper macro:
+%    \begin{macrocode}
 \asapsym@mkt{Boat}{A}
 \asapsym@mkt{Helicopter}{B}
 \asapsym@mkt{AirplaneOverhead}{C}

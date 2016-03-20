@@ -2,12 +2,14 @@ SRC = asapsym.ins asapsym.dtx
 PKG = asapsym.sty asapsym.code.tex asapsym-generic.tex
 INT = asapsym.aux asapsym.glo asapsym.gls asapsym.idx asapsym.ilg asapsym.ind asapsym.log
 DOC = asapsym.pdf
+CTAN = asapsym.dtx asapsym.ins asapsym.pdf README.md Asap-Symbol.otf
+NAME = asapsym.tar.gz
 
 .PHONY : all sty pre doc log ind ctan clean
 
 all : sty doc
 
-sty : asapsym.sty
+sty : $(PKG)
 
 $(PKG) : $(SRC)
 	latex $<
@@ -33,5 +35,9 @@ ind : pre asapsym.ind
 asapsym.ind : asapsym.idx
 	makeindex -s gind.ist -o $@ $<
 
-clean : 
+ctan : all
+	cp $(CTAN) asapsym/
+	tar -C asapsym -cf $(NAME) $(CTAN)
+
+clean :
 	rm -f $(INT) $(PKG) $(DOC)

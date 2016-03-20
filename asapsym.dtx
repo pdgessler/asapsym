@@ -39,7 +39,7 @@
 %
 %<*driver>
 \documentclass{ltxdoc}
-\usepackage{asapsym,microtype}
+\usepackage{asapsym,booktabs,hologo,microtype}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -71,9 +71,21 @@
 %
 % \changes{v1.0}{2016/03/20}{Initial public release}
 %
-% \DoNotIndex{\newcommand,\newenvironment}
+% \DoNotIndex{\@,\bgroup,\catcode,\csname,\def,\directlua,\edef,\egroup,\else,%
+% \endcsname,\endinput,\errmessage,\expandafter,\fi,\ifdefined,\input,%
+% \RequirePackage,\the,\XeTeXinterchartoks}
 %
 % \providecommand*{\url}{\texttt}
+% \newcommand{\pkg}[1]{\textsf{#1}}
+% \newcommand{\tr}[1]{\ttfamily\textbackslash asap#1 & \large\vphantom{Ag}\csname asap#1\endcsname \\}
+% \newcommand{\ts}[1]{\tr{#1Sign}}
+% \newcommand{\tn}[1]{\ts{Not#1}}
+% \newcommand{\tp}[1]{\tr{#1}}
+% \newcommand{\td}[1]{
+%   \tp{Female#1}
+%   \tp{Male#1}
+% }
+%
 % \GetFileInfo{asapsym.dtx}
 % \title{The \textsf{asapsym} package}
 % \author{Paul D. Gessler \\ \url{pdgessler@gmail.com}}
@@ -83,11 +95,178 @@
 %
 % \section{Introduction}
 %
-% Put text here.
+% The \pkg{asapsym} package provides convenience macros for using the symbols
+% contained in the included \emph{ASAP Symbol} font. The font is part of the
+% ASAP family\footnote{\url{http://www.omnibus-type.com/fonts/asap.php}} of 
+% fonts. The font is designed by Omnibus-Type\footnote{\url{http://www.omnibus-type.com/index.php}}
+% and released under the SIL Open Font License (OFL)\footnote{\url{http://scripts.sil.org/OFL}},
+% version 1.1.
+%
+% Development of the package is currently hosted on GitHub\footnote{\url{http://github.com/pdgessler/asapsym}}. 
+% You are welcome to follow development, submit any issues you discover, or
+% suggest improvements/enhancements using the web interface there.
 %
 % \section{Usage}
 %
-% Put text here.
+% To use the macros, you must use an OTF-capable engine with \hologo{eTeX}
+% extensions (\hologo{XeTeX} or \hologo{LuaTeX} both fit the bill). To load the
+% macros, choose the loading mechanism based on the format you are using:
+% \begin{verbatim}
+%  \usepackage{asapsym}    % LaTeX
+%  \input asapsym.code.tex % Plain TeX\end{verbatim}
+%
+% Once the package is loaded, all macros are available for use throughout your
+% document. Refer to sections \ref{sec:arrows} to \ref{sec:transportation} for
+% a complete listing of macros and their resulting symbols, grouped by category.
+%
+% \section{Arrows} \label{sec:arrows}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \tr{ArrowLeft}
+% \tr{ArrowUpLeft}
+% \tr{ArrowUp}
+% \tr{ArrowUpRight}
+% \tr{ArrowRight}
+% \tr{ArrowDownRight}
+% \tr{ArrowDown}
+% \tr{ArrowDownLeft}
+% \tr{ArrowCircleOpenLeft}
+% \tr{ArrowCircleOpenUpLeft}
+% \tr{ArrowCircleOpenUp}
+% \tr{ArrowCircleOpenUpRight}
+% \tr{ArrowCircleOpenRight}
+% \tr{ArrowCircleOpenDownRight}
+% \tr{ArrowCircleOpenDown}
+% \tr{ArrowCircleOpenDownLeft}
+% \tr{ArrowCircleFillLeft}
+% \tr{ArrowCircleFillUpLeft}
+% \tr{ArrowCircleFillUp}
+% \tr{ArrowCircleFillUpRight}
+% \tr{ArrowCircleFillRight}
+% \tr{ArrowCircleFillDownRight}
+% \tr{ArrowCircleFillDown}
+% \tr{ArrowCircleFillDownLeft}
+% \bottomrule
+% \end{tabular}
+% 
+% \section{Elevators}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \tr{Elevator}
+% \tr{Stair}
+% \tr{StairDown}
+% \tr{StairUp}
+% \tr{Escalator}
+% \tr{EscalatorDown}
+% \tr{EscalatorUp}
+% \bottomrule
+% \end{tabular}
+% 
+% \section{Objects}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \tr{Book}
+% \tr{Envelope}
+% \tr{Gift}
+% \tr{Locker}
+% \tr{LostAndFound}
+% \tr{Microscope}
+% \tr{Cross}
+% \tr{Phone}
+% \tr{MobilePhone}
+% \tr{Tablet}
+% \tr{Monitor}
+% \tr{Utensils}
+% \tr{Mug}
+% \tr{Hanger}
+% \tr{Cigarette}
+% \bottomrule
+% \end{tabular}
+% 
+% \section{People}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \td{WithServiceAnimal}
+% \td{WalkingDog}
+% \td{Walking}
+% \td{WithLuggageWaving}
+% \td{WithLuggageWaiting}
+% \td{DiscardingTrash}
+% \td{AtHelpDesk}
+% \td{HoldingInfant}
+% \td{WalkingStroller}
+% \td{WithChild}
+% \tp{WalkingCane}
+% \tp{WaitingSeated}
+% \td{AtDrinkingFountain}
+% \td{Adult}
+% \td{Child}
+% \tp{WheelchairStationary}
+% \tp{WheelchairInMotion}
+% \tp{Pregnant}
+% \tp{GroupMeeting}
+% \tp{Cycling}
+% \tp{Dog}
+% \tp{Infant}
+% \bottomrule
+% \end{tabular}
+% 
+% \section{Signals}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \ts{Information}
+% \ts{Hospital}
+% \ts{Help}
+% \ts{Dollar}
+% \ts{Emergency}
+% \ts{Parking}
+% \ts{Walk}
+% \ts{Dog}
+% \ts{MobilePhone}
+% \ts{Cigarette}
+% \ts{Not}
+% \midrule
+% \tn{Information}
+% \tn{Hospital}
+% \tn{Help}
+% \tn{Dollar}
+% \tn{Emergency}
+% \tn{Parking}
+% \tn{Walk}
+% \tn{Dog}
+% \tn{MobilePhone}
+% \tn{Cigarette}
+% \bottomrule
+% \end{tabular}
+% 
+% \section{Transportation} \label{sec:transportation}
+% \begin{tabular}{lc}
+% \toprule
+% Macro & Symbol \\
+% \midrule
+% \tr{Boat}
+% \tr{Helicopter}
+% \tr{AirplaneOverhead}
+% \tr{AirplaneTakeoff}
+% \tr{AirplaneLanding}
+% \tr{Bicycle}
+% \tr{Automobile}
+% \tr{Taxi}
+% \tr{AutomobileWithKey}
+% \tr{Bus}
+% \tr{Train}
+% \bottomrule
+% \end{tabular}
 %
 % \StopEventually{}
 %

@@ -1,18 +1,27 @@
+SRC = asapsym.ins asapsym.dtx
+PKG = asapsym.sty asapsym.code.tex asapsym-generic.tex
+INT = asapsym.aux asapsym.glo asapsym.gls asapsym.idx asapsym.ilg asapsym.ind asapsym.log
+DOC = asapsym.pdf
+
 .PHONY : all sty pre doc log ind ctan clean
 
 all : sty doc
 
 sty : asapsym.sty
 
-asapsym.sty asapsym.code.tex asapsym-generic.tex : asapsym.ins asapsym.dtx
+$(PKG) : $(SRC)
 	latex $<
 
-pre : asapsym.pdf
+pre : $(DOC)
 
-asapsym.pdf : asapsym.dtx
+$(DOC) : asapsym.dtx
 	lualatex $<
 
-doc : asapsym.sty pre log ind asapsym.pdf
+post : asapsym.dtx
+	touch $(DOC)
+	lualatex $<
+
+doc : asapsym.sty pre log ind post
 
 log : pre asapsym.gls
 
@@ -25,4 +34,4 @@ asapsym.ind : asapsym.idx
 	makeindex -s gind.ist -o $@ $<
 
 clean : 
-	rm -f asapsym{.sty,.code.tex,-generic.tex,.pdf}
+	rm -f $(INT) $(PKG) $(DOC)
